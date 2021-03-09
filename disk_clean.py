@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import datetime
 import time_datetime_converter
@@ -11,7 +12,6 @@ def src_init(raw_dirs_list):  # Находим диски
     for s in raw_dirs_list:
         if os.path.isdir(s):
             _src_list.append(s)
-            print('найден диск '+s)
     return _src_list
 
 
@@ -21,7 +21,6 @@ def dest_init(raw_dirs_list):  # Находим диски
     for d in raw_dirs_list:
         if os.path.isdir(d):
             _dest_list.append(os.path.abspath(os.path.join(d, 'ORIGINAL')))
-            print('найден диск '+d)
     return _dest_list
 
 
@@ -31,18 +30,24 @@ def welcome():     # Ввод пользователем days_old
     answer = input()
     if answer == 'n':
         print('Выход')
-        time.sleep(2)
+        time.sleep(1)
         exit()
     elif (answer != 'n') and (answer != 'y'):
         print('Продолжить - клавиша "y", отмена - клавиша "n"')
-        time.sleep(2)
+        time.sleep(1)
         welcome()
     elif answer == 'y':
         
         print('Файлы старше скольки дней удаляем? (количество дней цифрами)')
-        _days_old = int(input())
 
-    return(_days_old)
+        try:
+            _days_old = int(input())
+            return _days_old
+
+        except ValueError:
+            print('Количество дней цифрами!')
+            time.sleep(1)
+            welcome()
 
 
 def raw_del_list(_src_list, _days_old):   # Первоначальный список на удаление (по дате создания)
@@ -100,7 +105,7 @@ def remove(_final_delete_list, _src_list):
                         os.remove(del_file_path)
                         deleted_files += 1
                         optimized_memory += cache_memory
-                    except:
+                    except OSError:
                         cant_delete += 1
                         pass
 
@@ -111,9 +116,8 @@ def remove(_final_delete_list, _src_list):
 
 
 if __name__ == "__main__":
-    days_old = 'none'
-    while type(days_old) is str:
-        days_old = welcome()
+
+    days_old = welcome()
 
     src_list = src_init(RAW_SOURCE_LIST)
     dest = dest_init(RAW_ORIGINAL_LIST)
@@ -125,6 +129,4 @@ if __name__ == "__main__":
 
     time.sleep(2)
     os.startfile('free_space.exe')
-
-
-
+    sys.exit()
