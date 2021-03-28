@@ -3,6 +3,7 @@ import sys
 import time
 import datetime
 import configparser
+import threading
 import time_datetime_converter
 
 config = configparser.ConfigParser()
@@ -70,24 +71,32 @@ def raw_del_list(_src_list, _days_old):   # Первоначальный спи�
 
     print('Ищем старые файлы ...')
 
+    x = threading.Thread(target=thread_function, args=(1,))
+
     first_del_list = []
 
-    for dirs in _src_list:
+    while True:
 
-        for i in os.walk(dirs):
+        print(1)
 
-            for j in i[2]:
-                if j.endswith(SUFFIX):
-                    path = os.path.join(os.path.abspath(i[0]), j)
-                    file_create_date = time.ctime(os.path.getctime(path))
-                    converted_file_create_date = time_datetime_converter.convert_to_datetime(
-                        file_create_date)                              # Импортированная функция convert_to_datetime
-                    now = datetime.date.today()
-                    time_check = datetime.timedelta(days=_days_old)
+        for dirs in _src_list:
 
-                    if (now - converted_file_create_date) > time_check:
-                        if 'не удалять' not in path and 'НЕ УДАЛЯТЬ' not in path:
-                            first_del_list.append(j)
+            for i in os.walk(dirs):
+
+                for j in i[2]:
+                    if j.endswith(SUFFIX):
+                        path = os.path.join(os.path.abspath(i[0]), j)
+                        file_create_date = time.ctime(os.path.getctime(path))
+                        converted_file_create_date = time_datetime_converter.convert_to_datetime(
+                            file_create_date)                              # Импортированная функция convert_to_datetime
+                        now = datetime.date.today()
+                        time_check = datetime.timedelta(days=_days_old)
+
+                        if (now - converted_file_create_date) > time_check:
+                            if 'не удалять' not in path and 'НЕ УДАЛЯТЬ' not in path:
+                                first_del_list.append(j)
+        break
+
     print('Список файлов на удаление составлен')
     return first_del_list
 
