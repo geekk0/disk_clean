@@ -8,11 +8,10 @@ q = queue.Queue()
 q.put(False)
 
 
-
 class counter(object):
-    def __init__(self):
+    def __init__(self, args):
 
-        wait_label = "Loading"
+        wait_label = args
 
         old_wait_label = wait_label
 
@@ -34,16 +33,17 @@ class counter(object):
             time.sleep(1)
 
 
-class other(counter):
-    def __init__(self):
-
-        time.sleep(10)
-
-        q.put(True)
 
 
-counter_thread = threading.Thread(None, counter)
+label = 'Загрузка'
+counter_thread = threading.Thread(None, counter, args=('Загрузка',), daemon=False)
 counter_thread.start()
 
-other_thread = threading.Thread(None, other)
-other_thread.start()
+time.sleep(5)
+
+q.put(True)
+time.sleep(2)
+print('5 секунд прошло')
+print(q.task_done())
+print(q.empty())
+print(q.task_done())
